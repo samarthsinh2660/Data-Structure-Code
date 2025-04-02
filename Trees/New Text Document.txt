@@ -1,0 +1,118 @@
+#include<stdio.h>
+#include<stdlib.h>
+struct node{
+    int value;
+    struct node* left,*right;    
+};
+struct node* stack[10];
+int top=-1;
+void push(struct node* x) {
+    if (top >= 9) {
+        printf("Stack Overflow\n");
+        return;
+    }
+    stack[++top] = x;
+}
+
+struct node* pop() {
+    if (top < 0) {
+        printf("Stack Underflow\n");
+        return NULL;
+    }
+    return stack[top--];
+}
+struct node *create(){
+    int x;
+    struct node* newnode=(struct node*)(malloc(sizeof(struct node)));
+    printf("enter value for node");
+    scanf("%d",&x);   
+    if(x==-1){
+        return 0;
+    }
+    newnode->value=x;
+    printf("enter left child of %d \n",x);
+    newnode->left=create();
+    printf("enter right child of %d \n",x);
+    newnode->right=create();
+    return newnode;
+}
+void inorder_traversal(struct node* root) {
+    struct node* current = root;
+
+    printf("\nInorder Traversal: ");
+    while (current != NULL || top != -1) {
+        // Reach the leftmost node of the current node
+        while (current != NULL) {
+            push(current);
+            current = current->left;
+        }
+
+        // Current is NULL at this point, process the top node in the stack
+        current = pop();
+        printf("%d ", current->value);
+
+        // Move to the right subtree
+        current = current->right;
+    }
+    printf("\n");
+}
+void preorder_traversal(struct node* root) {
+    printf("\nPreorder Traversal: ");
+
+    // Push the root node onto the stack
+    push(root);
+
+    // Process the stack
+    while (top != -1) {
+        // Pop the top node and process it
+        struct node* current = pop();
+        printf("%d ", current->value);
+
+        // Push the right child first, then the left child (if they exist)
+        if (current->right != NULL) {
+            push(current->right);
+        }
+        if (current->left != NULL) {
+            push(current->left);
+        }
+    }
+
+    printf("\n");
+}
+void postorder_traversal(struct node* root) {
+    struct node* current = root;
+    struct node* last_visited = NULL;
+
+    printf("\nPostorder Traversal: ");
+    while (current != NULL || top != -1) {
+        // Traverse to the leftmost node
+        while (current != NULL) {
+            push(current);
+            current = current->left;
+        }
+
+        // Peek the top node in the stack
+        current = stack[top];
+
+        // Check if the right child has been processed
+        if (current->right == NULL || current->right == last_visited) {
+            printf("%d ", current->value);  // Process the node
+            pop();
+            last_visited = current;        // Mark the node as processed
+            current = NULL;                // Prevent going back to left child
+        } else {
+            // Move to the right child
+            current = current->right;
+        }
+    }
+    printf("\n");
+}
+
+void main(){
+   struct node* root;
+   root=create();
+   inorder_traversal(root);
+   preorder_traversal(root);
+   postorder_traversal(root);
+
+}

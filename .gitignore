@@ -1,0 +1,51 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Compiled Binary files
+*.exe
+*.out
+*.app
+*.dll
+*.so
+*.dylib
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Debug files
+*.dSYM/
+*.map
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+
+# Code::Blocks
+*.depend
+*.layout
+*.cbp
+
+# Visual Studio
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.ncb
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.opendb
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db

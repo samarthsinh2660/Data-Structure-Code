@@ -1,0 +1,124 @@
+When you see a declaration like:
+
+```cpp
+Matrix A11(m, vector<int>(m)),
+       A12(m, vector<int>(m)),
+       A21(m, vector<int>(m)),
+       A22(m, vector<int>(m));
+```
+
+what’s happening is:
+
+1. **Type alias**  
+   Earlier in the code we did:
+   ```cpp
+   using Matrix = vector<vector<int>>;
+   ```
+   so `Matrix` is just a shorthand for `vector<vector<int>>`.
+
+2. **Constructor syntax**  
+   - `A11(m, vector<int>(m))` calls the **vector** constructor that takes `(size, initial_value)`.  
+   - Here `m` is the number of rows, and `vector<int>(m)` is a vector of `m` zeros (the default for `int`).  
+   - Thus **`A11`** becomes an `m×m` matrix, all initialized to 0.  
+   - The same goes for **`A12`**, **`A21`**, and **`A22`** (and likewise for the four `Bxx` matrices).
+
+---
+
+## Dry-Run Example
+
+Let’s take a concrete example: an original 4×4 matrix **A**, which we want to split into 2×2 sub-blocks (so `n=4`, `m = n/2 = 2`):
+
+```
+Original A:
+[ a00  a01  a02  a03 ]
+[ a10  a11  a12  a13 ]
+[ a20  a21  a22  a23 ]
+[ a30  a31  a32  a33 ]
+```
+
+### Step 1: Allocate the submatrices
+
+```cpp
+int m = 2;
+Matrix A11(m, vector<int>(m)),
+       A12(m, vector<int>(m)),
+       A21(m, vector<int>(m)),
+       A22(m, vector<int>(m));
+```
+
+Each of `A11, A12, A21, A22` is now a **2×2** matrix initialized to zero:
+
+```
+A11 = [ 0  0 ]
+      [ 0  0 ]
+
+A12 = [ 0  0 ]
+      [ 0  0 ]
+
+A21 = [ 0  0 ]
+      [ 0  0 ]
+
+A22 = [ 0  0 ]
+      [ 0  0 ]
+```
+
+### Step 2: Fill them using the nested loops
+
+```cpp
+for (int i = 0; i < m; i++) {
+  for (int j = 0; j < m; j++) {
+    A11[i][j] = A[i][j];
+    A12[i][j] = A[i][j + m];
+    A21[i][j] = A[i + m][j];
+    A22[i][j] = A[i + m][j + m];
+  }
+}
+```
+intial matrix ni values upar set karvanu like A11 ne su joiya che inital first value take reference from the main A then manipulate the i and j
+- When **i=0, j=0**:
+  - `A11[0][0] = A[0][0]` → `a00`
+  - `A12[0][0] = A[0][2]` → `a02`   (because `j+m = 0+2 = 2`)
+  - `A21[0][0] = A[2][0]` → `a20`   (`i+m = 0+2 = 2`)
+  - `A22[0][0] = A[2][2]` → `a22`
+
+- When **i=0, j=1**:
+  - `A11[0][1] = A[0][1]` → `a01`
+  - `A12[0][1] = A[0][3]` → `a03`
+  - `A21[0][1] = A[2][1]` → `a21`
+  - `A22[0][1] = A[2][3]` → `a23`
+
+- When **i=1, j=0**:
+  - `A11[1][0] = A[1][0]` → `a10`
+  - `A12[1][0] = A[1][2]` → `a12`
+  - `A21[1][0] = A[3][0]` → `a30`
+  - `A22[1][0] = A[3][2]` → `a32`
+
+- When **i=1, j=1**:
+  - `A11[1][1] = A[1][1]` → `a11`
+  - `A12[1][1] = A[1][3]` → `a13`
+  - `A21[1][1] = A[3][1]` → `a31`
+  - `A22[1][1] = A[3][3]` → `a33`
+
+After these four iterations, the sub-blocks are:
+
+```
+A11 = [ a00  a01 ]
+      [ a10  a11 ]
+
+A12 = [ a02  a03 ]
+      [ a12  a13 ]
+
+A21 = [ a20  a21 ]
+      [ a30  a31 ]
+
+A22 = [ a22  a23 ]
+      [ a32  a33 ]
+```
+
+The same pattern applies to **B11–B22** using the matrix **B**.
+
+---
+
+### Why This Matters in Strassen’s Algorithm
+
+Strassen’s method works by recursively multiplying these four sub-blocks rather than the full matrix at once. Splitting the original \(n \times n\) matrix into four \(\tfrac{n}{2}\times\tfrac{n}{2}\) blocks is the crucial divide step. This dry-run shows precisely how you carve out those blocks in code.
